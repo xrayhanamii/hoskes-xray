@@ -33,7 +33,16 @@ if [ "$TRANSPORT" != "ws" ] && [ "$TRANSPORT" != "xhttp" ]; then
   echo "[start] ERROR: TRANSPORT must be ws or xhttp" >&2; exit 1
 fi
 
-/app/xray-bin/xray version 2>&1 | head -1 || true
+# Pick the xray binary matching the container CPU architecture.
+# Hoskes builds linux/arm64 (2026-11-19: amd64 binary failed with
+# "syntax error: unexpected word"); other platforms build amd64.
+case "$(uname -m)" in
+  aarch64|arm64) XRAY_BIN="/app/xray-bin/xray-arm64" ;;
+  *)             XRAY_BIN="/app/xray-bin/xray" ;;
+esac
+echo "[start] arch=$(uname -m), xray binary=$XRAY_BIN"
+
+"$XRAY_BIN" version 2>&1 | head -1 || true
 
 if [ "$TRANSPORT" = "xhttp" ]; then
   STREAM_JSON="\"network\": \"xhttp\", \"xhttpSettings\": { \"path\": \"$WS_PATH\", \"mode\": \"packet-up\" }, \"security\": \"none\""
@@ -62,7 +71,7 @@ cat > /tmp/xray-config.json <<EOF
 EOF
 echo "[start] xray config written (transport=$TRANSPORT, xray_port=$XRAY_PORT)"
 
-/app/xray-bin/xray run -config /tmp/xray-config.json 2>&1 &
+"$XRAY_BIN" run -config /tmp/xray-config.json 2>&1 &
 XRAY_PID=$!
 sleep 2
 if ! kill -0 "$XRAY_PID" 2>/dev/null; then

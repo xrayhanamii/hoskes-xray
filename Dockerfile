@@ -10,7 +10,8 @@ FROM node:20-alpine
 WORKDIR /app
 COPY package.json server.js entrypoint.sh ./
 COPY xray-bin/xray ./xray-bin/xray
-RUN chmod +x /app/entrypoint.sh /app/xray-bin/xray
+COPY xray-bin/xray-arm64 ./xray-bin/xray-arm64
+RUN chmod +x /app/entrypoint.sh /app/xray-bin/xray /app/xray-bin/xray-arm64
 ENV PORT=8080 XRAY_PORT=10001 TRANSPORT=xhttp
 EXPOSE 8080
 ENTRYPOINT ["/app/entrypoint.sh"]
