@@ -1,0 +1,1 @@
+{"dependencies":{},"description":"Runtime wrapper for xray-core VLESS+XHTTP on Hostless (Node.js, zero dependencies)","engines":{"node":">=18"},"name":"hostless-xray","private":true,"scripts":{"start":"sh entrypoint.sh"},"version":"1.0.0"}
